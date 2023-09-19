@@ -102,7 +102,7 @@ https://api.map.baidu.com/api?v=1.0&type=webgl&ak=你的密钥
 
 
 
-- [docker images](https://hub.docker.com/r/xianheyan/v2lbsyun)
+- [hub.docker.com](https://hub.docker.com/r/xianheyan/v2lbsyun)
 
 ```
 docker pull xianheyan/v2lbsyun:v0.0.7 # docker pull registry.cn-beijing.aliyuncs.com/dockermg/v2lbsyun:v0.0.7 
@@ -139,7 +139,5 @@ services:
 ### 二次开发 增加替换规则需要注意先 四级域名  三级域名  二级域名  一级域名 多级域名逐级替换具体方法 main.py
 
 - async def getscriot_new(srt):
-          ……
-          pass
 
 

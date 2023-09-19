@@ -8,7 +8,7 @@
 @Contact :   xianhe_yan@sina.com
 """
 
-import asyncio
+from fastapi.responses import FileResponse
 from loguru import logger
 import hashlib
 import os
@@ -16,13 +16,21 @@ import re
 import requests
 import urllib3
 import logging
-from fastapi import FastAPI, Request, Header, Request, Response
+
+from openpyxl import Workbook, load_workbook
+from pyproj import Transformer
+from pyproj import CRS, Transformer
+from coord_convert.transform import wgs2gcj, wgs2bd, gcj2wgs, gcj2bd, bd2wgs, bd2gcj
+
+from fastapi import FastAPI, File, Request, Header, Request, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from modules.db_client import MyredisClient
 from public.metadata import Tags
 
 from public.system import Configs
 from public.utils import UtilsTools
+
+
 
 # # ## ssl
 urllib3.disable_warnings()
@@ -301,9 +309,42 @@ async def getscriot_new(srt):
     )
     logger.info(tmp_srt)
     return tmp_srt
+# 要将大地2000坐标转换为百度坐标（BD-09）
+def cgcs2000bd09(latitude, longitude):
+    if latitude is not None and latitude != "" and longitude is not None and longitude != "":
+        # 定义大地2000坐标
+        # 创建转换器
+        # 创建转换器
+        transformer = Transformer.from_crs('EPSG:4326', 'EPSG:3857')  # 大地2000坐标 -> Web墨卡托投影坐标
+        bd_transformer = Transformer.from_crs('EPSG:3857','EPSG:4490') # Web墨卡托投影坐标 -> BD-09坐标
 
+        # 坐标转换
+        web_mercator_x, web_mercator_y = transformer.transform(latitude, longitude)  # 大地2000坐标 -> Web墨卡托投影坐标
+        bd_longitude, bd_latitude = bd_transformer.transform(web_mercator_y, web_mercator_x)  # Web墨卡托投影坐标 -> BD-09坐标
 
+        # 打印结果
+        logger.debug(f"BD-09坐标: {bd_longitude}, {bd_latitude}")
+        return bd_latitude , bd_longitude
+    else:
+        return latitude, longitude
 
+# lat lon
+def crs_cgcs2000(east, north) :
+    if east is not None and east != "" and north is not None and north != "":
+        # 定义CGCS2000投影坐标系
+        crs_cgcs2000 = CRS.from_epsg(4545)
+        # 创建坐标转换器
+        transformer_cgcs_wgs = Transformer.from_crs(crs_cgcs2000, 'epsg:4326')  # CGCS2000 to WGS84
+        transformer_wgs_cgcs = Transformer.from_crs('epsg:4326', crs_cgcs2000)  # WGS84 to CGCS2000
+
+        # CGCS2000坐标转换为WGS84经纬度
+        # east, north =4349515.286,623077.749 # 假设CGCS2000坐标为 (1000000, 2000000)
+        lon, lat = transformer_cgcs_wgs.transform(east, north)
+        # WGS84 to BD09
+        lon_bd09, lat_bd09 = wgs2bd(lon, lat )
+        return lon_bd09, lat_bd09
+    else :
+        return east, north
 # 处理函数示例
 @app.get("/v1/ping", tags=["ping"])
 async def ping_controllers(request: Request):
@@ -401,3 +442,65 @@ async def clear_controllers(ak, sk, response: Response, request: Request):
     else:
         logger.info("[%s][%s][%s]" % (request.url, _uuid, request.client.host))
         return {"message": "认证失败！"}
+
+
+# 处理函数示例
+
+@app.post("/v2lbsyun/crscgcs2000eastnorth/{ak}", tags=["crscgcs2000"])
+async def crscgcs2000eastnorth(response: Response, request: Request,file: UploadFile = File(...)):
+
+    _tmp = "%s-%s"%(hashlib.md5(file.filename.encode()).hexdigest().encode(),file.filename)
+    _filename = _tmp[2:]
+    # 读取上传的 xlsx 文件数据
+    content = await file.read()
+    with open(_filename, "wb") as f:
+        f.write(content)
+
+    # 打开上传的 xlsx 文件
+    wb = load_workbook(_filename)
+    # 读取工作表数据（示例中只读取第一个工作表）
+    sheet = wb.active
+    # 修改第三 四列的内容
+    for row in sheet.iter_rows(min_row=2, min_col=3, max_col=4):
+        latitude, longitude = crs_cgcs2000(row[0].value, row[1].value)
+        # latitude, longitude = crs_cgcs2000(row[1].value, row[0].value)
+        row[0].value = latitude
+        row[1].value = longitude
+
+    # 保存修改后的文件
+    modified_filename = UtilsTools().getUuid1()+".xlsx"
+    wb.save(modified_filename)
+
+    # 返回修改后的文件下载响应
+    return FileResponse(modified_filename, filename=modified_filename)
+
+
+
+
+@app.post("/v2lbsyun/crscgcs2000northeast/{ak}", tags=["crscgcs2000"])
+async def crscgcs2000northeast(response: Response, request: Request,file: UploadFile = File(...)):
+
+    _tmp = "%s-%s"%(hashlib.md5(file.filename.encode()).hexdigest().encode(),file.filename)
+    _filename = _tmp[2:]
+    # 读取上传的 xlsx 文件数据
+    content = await file.read()
+    with open(_filename, "wb") as f:
+        f.write(content)
+
+    # 打开上传的 xlsx 文件
+    wb = load_workbook(_filename)
+    # 读取工作表数据（示例中只读取第一个工作表）
+    sheet = wb.active
+    # 修改第三 四列的内容
+    for row in sheet.iter_rows(min_row=2, min_col=3, max_col=4):
+        #latitude, longitude = crs_cgcs2000(row[0].value, row[1].value)
+        latitude, longitude = crs_cgcs2000(row[1].value, row[0].value)
+        row[0].value = latitude
+        row[1].value = longitude
+
+    # 保存修改后的文件
+    modified_filename = UtilsTools().getUuid1()+".xlsx"
+    wb.save(modified_filename)
+
+    # 返回修改后的文件下载响应
+    return FileResponse(modified_filename, filename=modified_filename)
