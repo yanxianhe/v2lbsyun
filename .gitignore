@@ -1,0 +1,4 @@
+**/shell/*
+**/.vscode/*
+**/__pycache__/
+**.log
