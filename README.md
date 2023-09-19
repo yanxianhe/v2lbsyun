@@ -89,6 +89,7 @@ https://api.map.baidu.com/api?v=1.0&type=webgl&ak=你的密钥
   |----|----|----|
   |HTTPS_TYPE|https://|地图默认 https 方式|
   |EXTERNAL_URL|http://192.168.31.202:8000|部署 v2lbsyun 机器 及端口 |
+  |API_WEBGL|https://api.map.baidu.com/api?v=1.0&type=webgl&ak=|百度地图 jsapi 设置DMZ 区域地址|
   |LOG_LEVEL|Default|日志级别 error info success  Default|
   |REDIS_HOST|redis.local|redis 地址|
   |REDIS_PORT|6379||
@@ -101,7 +102,7 @@ https://api.map.baidu.com/api?v=1.0&type=webgl&ak=你的密钥
 
 
 
-- docker images
+- [docker images](https://hub.docker.com/r/xianheyan/v2lbsyun)
 
 ```
 docker pull xianheyan/v2lbsyun:v0.0.7 # docker pull registry.cn-beijing.aliyuncs.com/dockermg/v2lbsyun:v0.0.7 

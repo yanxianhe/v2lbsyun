@@ -22,7 +22,7 @@ class Tags(object) :
         tags_metadata = [
             {
                 "name": "ping",
-                "description": "服务探针",
+                "description": "服务探针[存活及数据库]",
             },
             {
                 "name": "jsapi",
@@ -34,7 +34,7 @@ class Tags(object) :
             },
             {
                 "name": "getbmapcss",
-                "description": "获取百度地图JavaScript ",
+                "description": "获取百度地图 css ",
             },
             {
                 "name": "clear",
