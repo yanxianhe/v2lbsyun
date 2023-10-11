@@ -140,4 +140,23 @@ services:
 
 - async def getscriot_new(srt):
 
+- 由于内网部署 FastAPI Swagger UI 打不开
+- 原因使用外网静js css 态资源将静态资源下载到本地修改一下
+
+- 如 Python 3.10.12 lib 默认库在~/.local/lib/python3.10/site-packages/fastapi/openapi/docs.py
+
+- 修改 get_swagger_ui_html 、get_redoc_html
+- 静态文件已经上传值 static 目录
+* get_swagger_ui_html
+~~~~~~
+    swagger_js_url: str = "/static/swagger-ui-5.8.0/swagger-ui-bundle.js",
+    swagger_css_url: str = "/static/swagger-ui-5.8.0/swagger-ui.css",
+    swagger_favicon_url: str = "/static/favicon.png",
+~~~~~~
+* get_redoc_html
+~~~~~~
+    redoc_js_url: str = "/static/redoc-2.1.1/redoc.standalone.js",
+    redoc_favicon_url: str = "/static/redoc-2.1.1/favicon.png",
+~~~~~~
+
 

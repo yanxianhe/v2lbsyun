@@ -9,6 +9,7 @@
 """
 
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from loguru import logger
 import hashlib
 import os
@@ -173,6 +174,8 @@ try:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    # 将静态文件目录配置为 static 文件夹
+    app.mount("/static", StaticFiles(directory="static"), name="static")
     logger.success("[success] running (Press CTRL+C to quit) ")
 except Exception as e:
     logger.error("[error] running  %s" % e)
@@ -442,65 +445,3 @@ async def clear_controllers(ak, sk, response: Response, request: Request):
     else:
         logger.info("[%s][%s][%s]" % (request.url, _uuid, request.client.host))
         return {"message": "认证失败！"}
-
-
-# 处理函数示例
-
-@app.post("/v2lbsyun/crscgcs2000eastnorth/{ak}", tags=["crscgcs2000"])
-async def crscgcs2000eastnorth(response: Response, request: Request,file: UploadFile = File(...)):
-
-    _tmp = "%s-%s"%(hashlib.md5(file.filename.encode()).hexdigest().encode(),file.filename)
-    _filename = _tmp[2:]
-    # 读取上传的 xlsx 文件数据
-    content = await file.read()
-    with open(_filename, "wb") as f:
-        f.write(content)
-
-    # 打开上传的 xlsx 文件
-    wb = load_workbook(_filename)
-    # 读取工作表数据（示例中只读取第一个工作表）
-    sheet = wb.active
-    # 修改第三 四列的内容
-    for row in sheet.iter_rows(min_row=2, min_col=3, max_col=4):
-        latitude, longitude = crs_cgcs2000(row[0].value, row[1].value)
-        # latitude, longitude = crs_cgcs2000(row[1].value, row[0].value)
-        row[0].value = latitude
-        row[1].value = longitude
-
-    # 保存修改后的文件
-    modified_filename = UtilsTools().getUuid1()+".xlsx"
-    wb.save(modified_filename)
-
-    # 返回修改后的文件下载响应
-    return FileResponse(modified_filename, filename=modified_filename)
-
-
-
-
-@app.post("/v2lbsyun/crscgcs2000northeast/{ak}", tags=["crscgcs2000"])
-async def crscgcs2000northeast(response: Response, request: Request,file: UploadFile = File(...)):
-
-    _tmp = "%s-%s"%(hashlib.md5(file.filename.encode()).hexdigest().encode(),file.filename)
-    _filename = _tmp[2:]
-    # 读取上传的 xlsx 文件数据
-    content = await file.read()
-    with open(_filename, "wb") as f:
-        f.write(content)
-
-    # 打开上传的 xlsx 文件
-    wb = load_workbook(_filename)
-    # 读取工作表数据（示例中只读取第一个工作表）
-    sheet = wb.active
-    # 修改第三 四列的内容
-    for row in sheet.iter_rows(min_row=2, min_col=3, max_col=4):
-        #latitude, longitude = crs_cgcs2000(row[0].value, row[1].value)
-        latitude, longitude = crs_cgcs2000(row[1].value, row[0].value)
-        row[0].value = latitude
-        row[1].value = longitude
-
-    # 保存修改后的文件
-    modified_filename = UtilsTools().getUuid1()+".xlsx"
-    wb.save(modified_filename)
-
-    # 返回修改后的文件下载响应
-    return FileResponse(modified_filename, filename=modified_filename)

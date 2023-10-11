@@ -39,14 +39,6 @@ class Tags(object) :
             {
                 "name": "clear",
                 "description": "清理换成重新拉取资源 ",
-            },
-            {
-                "name": "togeographic",
-                "description": "大地2000坐标转换为经纬度 ",
-            },
-            {
-                "name": "crscgcs2000",
-                "description": "CGCS2000坐标与经纬度（WGS84）之间的转换 WGS84转换为百度坐标（BD-09）只读取只读取第一个工作表 第3 4 列的值转换 ",
             }
         ]
         return tags_metadata

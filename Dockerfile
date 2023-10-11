@@ -4,7 +4,8 @@ FROM python:3.10.0-alpine
 LABEL maintainer "yxh <xianhe_yan@sina.com>"
 #### 指定工作目录
 WORKDIR /usr/src/app
-COPY ./lbsyun/ /usr/src/app/
+COPY ./v2lbsyun/ /usr/src/app/
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 RUN apk update && \
     apk add --no-cache build-base libffi-dev openssl-dev && \
     pip install --upgrade pip install -r requirements.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
