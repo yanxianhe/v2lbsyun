@@ -2,7 +2,7 @@ version: "3.7"
 services:
   v2lbsyun.local:
     hostname: v2lbsyun.local
-    image: xianheyan/v2lbsyun:v0.0.7
+    image: xianheyan/v2lbsyun:v0.0.8
     container_name: v2lbsyun
     environment:
       - TZ=Asia/Shanghai
