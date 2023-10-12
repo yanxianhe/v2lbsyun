@@ -18,12 +18,7 @@ import requests
 import urllib3
 import logging
 
-from openpyxl import Workbook, load_workbook
-from pyproj import Transformer
-from pyproj import CRS, Transformer
-from coord_convert.transform import wgs2gcj, wgs2bd, gcj2wgs, gcj2bd, bd2wgs, bd2gcj
-
-from fastapi import FastAPI, File, Request, Header, Request, Response, UploadFile
+from fastapi import FastAPI, Request, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from modules.db_client import MyredisClient
 from public.metadata import Tags
@@ -312,42 +307,6 @@ async def getscriot_new(srt):
     )
     logger.info(tmp_srt)
     return tmp_srt
-# 要将大地2000坐标转换为百度坐标（BD-09）
-def cgcs2000bd09(latitude, longitude):
-    if latitude is not None and latitude != "" and longitude is not None and longitude != "":
-        # 定义大地2000坐标
-        # 创建转换器
-        # 创建转换器
-        transformer = Transformer.from_crs('EPSG:4326', 'EPSG:3857')  # 大地2000坐标 -> Web墨卡托投影坐标
-        bd_transformer = Transformer.from_crs('EPSG:3857','EPSG:4490') # Web墨卡托投影坐标 -> BD-09坐标
-
-        # 坐标转换
-        web_mercator_x, web_mercator_y = transformer.transform(latitude, longitude)  # 大地2000坐标 -> Web墨卡托投影坐标
-        bd_longitude, bd_latitude = bd_transformer.transform(web_mercator_y, web_mercator_x)  # Web墨卡托投影坐标 -> BD-09坐标
-
-        # 打印结果
-        logger.debug(f"BD-09坐标: {bd_longitude}, {bd_latitude}")
-        return bd_latitude , bd_longitude
-    else:
-        return latitude, longitude
-
-# lat lon
-def crs_cgcs2000(east, north) :
-    if east is not None and east != "" and north is not None and north != "":
-        # 定义CGCS2000投影坐标系
-        crs_cgcs2000 = CRS.from_epsg(4545)
-        # 创建坐标转换器
-        transformer_cgcs_wgs = Transformer.from_crs(crs_cgcs2000, 'epsg:4326')  # CGCS2000 to WGS84
-        transformer_wgs_cgcs = Transformer.from_crs('epsg:4326', crs_cgcs2000)  # WGS84 to CGCS2000
-
-        # CGCS2000坐标转换为WGS84经纬度
-        # east, north =4349515.286,623077.749 # 假设CGCS2000坐标为 (1000000, 2000000)
-        lon, lat = transformer_cgcs_wgs.transform(east, north)
-        # WGS84 to BD09
-        lon_bd09, lat_bd09 = wgs2bd(lon, lat )
-        return lon_bd09, lat_bd09
-    else :
-        return east, north
 # 处理函数示例
 @app.get("/v1/ping", tags=["ping"])
 async def ping_controllers(request: Request):

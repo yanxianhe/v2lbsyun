@@ -1,5 +1,5 @@
 #### 指定项目使用python 版本
-FROM python:3.10.0-alpine
+FROM python:3.10.12-alpine
 #### 镜像来源 https://registry.hub.docker.com/_/python
 LABEL maintainer "yxh <xianhe_yan@sina.com>"
 #### 指定工作目录
@@ -9,6 +9,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 RUN apk update && \
     apk add --no-cache build-base libffi-dev openssl-dev && \
     pip install --upgrade pip install -r requirements.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+ADD ./docs.py /usr/local/lib/python3.10/site-packages/fastapi/openapi/docs.py
 
 EXPOSE 8000
 #### 启动uvicorn 项目
