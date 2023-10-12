@@ -13,6 +13,10 @@
 └── lbsyun
     ├── docker-compose-v2lbsyun.yml    # docker-compose 启动文件 docker-compose -f ./docker-compose-v2lbsyun.yml up -d
     ├── Dockerfile                     # dockerfile 构建镜像文件
+    ├── dockerImages.sh                # dockerfile 构建镜像脚本
+    ├── docs.py                        # 本地化 Swagger UI
+    ├── jsapiAPI.json                  # Swagger UI 生成说明
+    ├── logs                           # 日志文件
     ├── __init__.py                    # 空文件
     ├── main.py                        # 主入口
     ├── modules                        # 模块目录
@@ -105,7 +109,7 @@ https://api.map.baidu.com/api?v=1.0&type=webgl&ak=你的密钥
 - [hub.docker.com](https://hub.docker.com/r/xianheyan/v2lbsyun)
 
 ```
-docker pull xianheyan/v2lbsyun:v0.0.7 # docker pull registry.cn-beijing.aliyuncs.com/dockermg/v2lbsyun:v0.0.7 
+docker pull xianheyan/v2lbsyun:v0.0.8 # docker pull registry.cn-beijing.aliyuncs.com/dockermg/v2lbsyun:v0.0.8 
 
 - 启动 
 docker-compose -p v2lbsyun -f ./docker-compose-v2lbsyun.yml up -d
@@ -119,7 +123,7 @@ version: "3.7"
 services:
   v2lbsyun.local:
     hostname: v2lbsyun.local
-    image: xianheyan/v2lbsyun:v0.0.7
+    image: xianheyan/v2lbsyun:v0.0.8
     container_name: v2lbsyun
     environment:
       - TZ=Asia/Shanghai
