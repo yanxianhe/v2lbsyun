@@ -97,7 +97,8 @@ https://api.map.baidu.com/api?v=1.0&type=webgl&ak=你的密钥
   |LOG_LEVEL|Default|日志级别 error info success  Default|
   |REDIS_HOST|redis.local|redis 地址|
   |REDIS_PORT|6379||
-  |REDIS_NAME|0||
+  |REDIS_NAME|1||
+  |REDIS_PWD|redis1||
 
 - 需要先引入地图的jsapi https 请求方式
 - API_WEBGL = "https://api.map.baidu.com/api?v=1.0&type=webgl&ak="

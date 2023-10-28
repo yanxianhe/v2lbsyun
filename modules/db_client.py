@@ -36,10 +36,11 @@ class MyredisClient(object) :
         # 如果环境变量不存在，返回默认值'Default Value'
         redis_host = os.environ.get('REDIS_HOST', 'redis.local')
         redis_port = os.environ.get('REDIS_PORT', '6379')
-        redis_dbname = os.environ.get('REDIS_NAME', 0)
+        redis_dbname = os.environ.get('REDIS_NAME', 1)
+        redis_password = os.environ.get('REDIS_PWD', 'redis1')
         # 创建Redis连接
         logger.info("{Redis %s -- %s -- %s} " % (redis_host,redis_port,redis_dbname))
-        self.db0 = redis.Redis(host=redis_host, port=redis_port, db=redis_dbname)
+        self.db0 = redis.Redis(host=redis_host, port=redis_port, db=redis_dbname, password=redis_password)
 #########################################Python的数据操作 Redis#########################################
     def get_redis_data(ak):
         ## 获取存储在Redis中的JSON数据

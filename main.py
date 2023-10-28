@@ -8,7 +8,6 @@
 @Contact :   xianhe_yan@sina.com
 """
 
-from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
 import hashlib

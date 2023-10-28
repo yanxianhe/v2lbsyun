@@ -14,6 +14,6 @@ services:
     hostname: redis.local
     image: redis:6.2.6
     restart: always
-    command: redis-server --save "" --maxmemory 5gb --timeout 0 --tcp-keepalive 60 --bind 0.0.0.0
+    command: redis-server --requirepass redis1 --save "" --maxmemory 5gb --timeout 0 --tcp-keepalive 60 --bind 0.0.0.0
     environment:
       - TZ=Asia/Shanghai
