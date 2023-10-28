@@ -8,6 +8,7 @@ services:
       - TZ=Asia/Shanghai
       - EXTERNAL_URL=http://192.168.31.202:8000
       - API_WEBGL=https://api.map.baidu.com/api?v=1.0&type=webgl&ak=
+      - REDIS_PWD=redis1
     ports:
       - "8000:8000"
   redis.local:
