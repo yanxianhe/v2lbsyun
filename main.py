@@ -204,7 +204,10 @@ async def send_http(_uuid, _requrl, _headers, payload={}):
     except requests.exceptions.HTTPError as e:
         logging.error(("[%s] {%s}" % (_uuid, msg)))
         return "Internal#Server#Error Exception 0 %s" % e
-    return response.text
+    if response.status_code == 200:
+        return response.text
+    else :
+        return "Internal#Server#Error Exception 0 %s" % response.status_code
 # 清理key
 def clear_redis_key(ak):
     MyredisClient.delete_redis_data(("%s%s") % (Configs._JSAPI_KEY, ak))
