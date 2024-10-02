@@ -16,6 +16,7 @@ import re
 import requests
 import urllib3
 import logging
+import uvicorn
 
 from fastapi import FastAPI, Request, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,106 +39,114 @@ description = """"""
 # ##*************************                 os env              *****************************#######
 # ##*******************************************************************************************#######
 # # ## 提供服务地址
-EXTERNAL_URL = os.environ.get("EXTERNAL_URL", "http://10.138.4.163:9095")
+EXTERNAL_HOST = os.environ.get("RY_MAP_EXTERNAL_HOST", "10.138.4.163")
+EXTERNAL_PORT = os.environ.get("RY_MAP_EXTERNAL_PORT", "9095")
+EXTERNAL_URL_DEF = ("%s:%s") % (EXTERNAL_HOST, EXTERNAL_PORT)
+EXTERNAL_URL = os.environ.get("RY_MAP_EXTERNAL_URL", f"http://{EXTERNAL_URL_DEF}")
 # # ## 提供服务地址
-HTTPS_TYPE = os.environ.get("HTTPS_TYPE", "https://")
+HTTPS_TYPE = os.environ.get("RY_MAP_HTTPS_TYPE", "https://")
 # # ## http 百度源地址
-API_WEBGL = os.environ.get("API_WEBGL")
+API_WEBGL = os.environ.get("RY_MAP_API_WEBGL")
 
 # # ## 百度 ak
-API_WEBGL_AK = os.environ.get("API_WEBGL_AK", "API_WEBGL_AK")
+API_WEBGL_AK = os.environ.get("RY_MAP_API_WEBGL_AK", "RY_MAP_API_WEBGL_AK")
 
 # ## 四级域名
 
 # ## 三级域名
-MAPOPEN_CDN_BCEBOS_COM = os.environ.get("MAPOPEN_CDN_BCEBOS_COM", "mapopen.cdn.bcebos.com")
-API_MAP_BAIDU_COM = os.environ.get("API_MAP_BAIDU_COM", "api.map.baidu.com")
+MAPOPEN_CDN_BCEBOS_COM = os.environ.get("RY_MAP_MAPOPEN_CDN_BCEBOS_COM", "mapopen.cdn.bcebos.com")
+API_MAP_BAIDU_COM = os.environ.get("RY_MAP_API_MAP_BAIDU_COM", "api.map.baidu.com")
 # ## 二级级域名
-HM_BAIDU_COM = os.environ.get("HM_BAIDU_COM", "hm.baidu.com")
-MAPONLINE0_BDIMG_COM = os.environ.get("MAPONLINE0_BDIMG_COM", "maponline0.bdimg.com")
-MAPONLINE1_BDIMG_COM = os.environ.get("MAPONLINE1_BDIMG_COM", "maponline1.bdimg.com")
-MAPONLINE2_BDIMG_COM = os.environ.get("MAPONLINE2_BDIMG_COM", "maponline2.bdimg.com")
-MAPONLINE3_BDIMG_COM = os.environ.get("MAPONLINE3_BDIMG_COM", "maponline3.bdimg.com")
-WEBMAP0_BDIMG_COM = os.environ.get("WEBMAP0_BDIMG_COM", "webmap0.bdimg.com")
-PCOR_BAIDU_COM = os.environ.get("PCOR_BAIDU_COM", "pcor.baidu.com")
-MIAO_BAIDU_COM = os.environ.get("MIAO_BAIDU_COM", "miao.baidu.com")
-DLSWBR_BAIDU_COM = os.environ.get("DLSWBR_BAIDU_COM", "dlswbr.baidu.com")
-MAP_BAIDU_COM = os.environ.get("MAP_BAIDU_COM", "map.baidu.com")
+HM_BAIDU_COM = os.environ.get("RY_MAP_HM_BAIDU_COM", "hm.baidu.com")
+MAPONLINE0_BDIMG_COM = os.environ.get("RY_MAP_MAPONLINE0_BDIMG_COM", "maponline0.bdimg.com")
+MAPONLINE1_BDIMG_COM = os.environ.get("RY_MAP_MAPONLINE1_BDIMG_COM", "maponline1.bdimg.com")
+MAPONLINE2_BDIMG_COM = os.environ.get("RY_MAP_MAPONLINE2_BDIMG_COM", "maponline2.bdimg.com")
+MAPONLINE3_BDIMG_COM = os.environ.get("RY_MAP_MAPONLINE3_BDIMG_COM", "maponline3.bdimg.com")
+WEBMAP0_BDIMG_COM = os.environ.get("RY_MAP_WEBMAP0_BDIMG_COM", "webmap0.bdimg.com")
+PCOR_BAIDU_COM = os.environ.get("RY_MAP_PCOR_BAIDU_COM", "pcor.baidu.com")
+MIAO_BAIDU_COM = os.environ.get("RY_MAP_MIAO_BAIDU_COM", "miao.baidu.com")
+DLSWBR_BAIDU_COM = os.environ.get("RY_MAP_DLSWBR_BAIDU_COM", "dlswbr.baidu.com")
+MAP_BAIDU_COM = os.environ.get("RY_MAP_MAP_BAIDU_COM", "map.baidu.com")
 # # ## http DMZ 区域代理
+DMZ_EXTERNAL_HOST = os.environ.get("RY_MAP_DMZ_EXTERNAL_HOST", "10.138.4.198")
+DMZ_EXTERNAL_PORTS = os.environ.get("RY_MAP_DMZ_EXTERNAL_PORTS", "11443")
+DMZ_EXTERNAL_PORT = os.environ.get("RY_MAP_DMZ_EXTERNAL_PORT", "11080")
+DMZ_EXTERNAL_DEFS = ("%s:%s") % (DMZ_EXTERNAL_HOST, DMZ_EXTERNAL_PORTS)
+DMZ_EXTERNAL_DEF = ("%s:%s") % (DMZ_EXTERNAL_HOST, DMZ_EXTERNAL_PORT)
 if "https" in HTTPS_TYPE:
     # # ## https DMZ 区域代理
     NG_MAPOPEN_CDN_BCEBOS_COM = os.environ.get(
-        "NG_MAPOPEN_CDN_BCEBOS_COM", "10.138.4.198:11443/mapopen_cdn_bcebos_com"
+        "NG_MAPOPEN_CDN_BCEBOS_COM", f"{DMZ_EXTERNAL_DEFS}/mapopen_cdn_bcebos_com"
     )
     NG_HM_BAIDU_COM = os.environ.get(
-        "NG_HM_BAIDU_COM", "10.138.4.198:11443/hm_baidu_com"
+        "NG_HM_BAIDU_COM", f"{DMZ_EXTERNAL_DEFS}/hm_baidu_com"
     )
     NG_API_MAP_BAIDU_COM = os.environ.get(
-        "NG_API_MAP_BAIDU_COM", "10.138.4.198:11443/api_map_baidu_com"
+        "NG_API_MAP_BAIDU_COM", f"{DMZ_EXTERNAL_DEFS}/api_map_baidu_com"
     )
     NG_MAPONLINE0_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE0_BDIMG_COM", "10.138.4.198:11443/maponline0_bdimg_com"
+        "NG_MAPONLINE0_BDIMG_COM", f"{DMZ_EXTERNAL_DEFS}/maponline0_bdimg_com"
     )
     NG_MAPONLINE1_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE1_BDIMG_COM", "10.138.4.198:11443/maponline1_bdimg_com"
+        "NG_MAPONLINE1_BDIMG_COM", f"{DMZ_EXTERNAL_DEFS}/maponline1_bdimg_com"
     )
     NG_MAPONLINE2_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE2_BDIMG_COM", "10.138.4.198:11443/maponline2_bdimg_com"
+        "NG_MAPONLINE2_BDIMG_COM", f"{DMZ_EXTERNAL_DEFS}/maponline2_bdimg_com"
     )
     NG_MAPONLINE3_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE3_BDIMG_COM", "10.138.4.198:11443/maponline3_bdimg_com"
+        "NG_MAPONLINE3_BDIMG_COM", f"{DMZ_EXTERNAL_DEFS}/maponline3_bdimg_com"
     )
     NG_WEBMAP0_BDIMG_COM = os.environ.get(
-        "NG_WEBMAP0_BDIMG_COM", "10.138.4.198:11443/webmap0_bdimg_com"
+        "NG_WEBMAP0_BDIMG_COM", f"{DMZ_EXTERNAL_DEFS}/webmap0_bdimg_com"
     )
     NG_PCOR_BAIDU_COM = os.environ.get(
-        "NG_PCOR_BAIDU_COM", "10.138.4.198:11443/pcor_baidu_com"
+        "NG_PCOR_BAIDU_COM", f"{DMZ_EXTERNAL_DEFS}/pcor_baidu_com"
     )
     NG_MIAO_BAIDU_COM = os.environ.get(
-        "NG_MIAO_BAIDU_COM", "10.138.4.198:11443/miao_baidu_com"
+        "NG_MIAO_BAIDU_COM", f"{DMZ_EXTERNAL_DEFS}/miao_baidu_com"
     )
     NG_DLSWBR_BAIDU_COM = os.environ.get(
-        "NG_DLSWBR_BAIDU_COM", "10.138.4.198:11443/dlswbr_baidu_com"
+        "NG_DLSWBR_BAIDU_COM", f"{DMZ_EXTERNAL_DEFS}/dlswbr_baidu_com"
     )
     NG_MAP_BAIDU_COM = os.environ.get(
-        "NG_MAP_BAIDU_COM", "10.138.4.198:11443/map_baidu_com"
+        "NG_MAP_BAIDU_COM", f"{DMZ_EXTERNAL_DEFS}/map_baidu_com"
     )
 else:
     NG_MAPOPEN_CDN_BCEBOS_COM = os.environ.get(
-        "NG_MAPOPEN_CDN_BCEBOS_COM", "10.138.4.198:11080/mapopen_cdn_bcebos_com"
+        "NG_MAPOPEN_CDN_BCEBOS_COM", f"{DMZ_EXTERNAL_DEF}/mapopen_cdn_bcebos_com"
     )
     NG_HM_BAIDU_COM = os.environ.get(
-        "NG_HM_BAIDU_COM", "10.138.4.198:11080/hm_baidu_com"
+        "NG_HM_BAIDU_COM", f"{DMZ_EXTERNAL_DEF}/hm_baidu_com"
     )
     NG_API_MAP_BAIDU_COM = os.environ.get(
-        "NG_API_MAP_BAIDU_COM", "10.138.4.198:11080/api_map_baidu_com"
+        "NG_API_MAP_BAIDU_COM", f"{DMZ_EXTERNAL_DEF}/api_map_baidu_com"
     )
     NG_MAPONLINE0_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE0_BDIMG_COM", "10.138.4.198:11080/maponline0_bdimg_com"
+        "NG_MAPONLINE0_BDIMG_COM", f"{DMZ_EXTERNAL_DEF}/maponline0_bdimg_com"
     )
     NG_MAPONLINE1_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE1_BDIMG_COM", "10.138.4.198:11080/maponline1_bdimg_com"
+        "NG_MAPONLINE1_BDIMG_COM", f"{DMZ_EXTERNAL_DEF}/maponline1_bdimg_com"
     )
     NG_MAPONLINE2_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE2_BDIMG_COM", "10.138.4.198:11080/maponline2_bdimg_com"
+        "NG_MAPONLINE2_BDIMG_COM", f"{DMZ_EXTERNAL_DEF}/maponline2_bdimg_com"
     )
     NG_MAPONLINE3_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE3_BDIMG_COM", "10.138.4.198:11080/maponline3_bdimg_com"
+        "NG_MAPONLINE3_BDIMG_COM", f"{DMZ_EXTERNAL_DEF}/maponline3_bdimg_com"
     )
     NG_WEBMAP0_BDIMG_COM = os.environ.get(
-        "NG_WEBMAP0_BDIMG_COM", "10.138.4.198:11080/webmap0_bdimg_com"
+        "NG_WEBMAP0_BDIMG_COM", f"{DMZ_EXTERNAL_DEF}/webmap0_bdimg_com"
     )
     NG_PCOR_BAIDU_COM = os.environ.get(
-        "NG_PCOR_BAIDU_COM", "10.138.4.198:11080/pcor_baidu_com"
+        "NG_PCOR_BAIDU_COM", f"{DMZ_EXTERNAL_DEF}/pcor_baidu_com"
     )
     NG_MIAO_BAIDU_COM = os.environ.get(
-        "NG_MIAO_BAIDU_COM", "10.138.4.198:11080/miao_baidu_com"
+        "NG_MIAO_BAIDU_COM", f"{DMZ_EXTERNAL_DEF}/miao_baidu_com"
     )
     NG_DLSWBR_BAIDU_COM = os.environ.get(
-        "NG_DLSWBR_BAIDU_COM", "10.138.4.198:11080/dlswbr_baidu_com"
+        "NG_DLSWBR_BAIDU_COM", f"{DMZ_EXTERNAL_DEF}/dlswbr_baidu_com"
     )
     NG_MAP_BAIDU_COM = os.environ.get(
-        "NG_MAP_BAIDU_COM", "10.138.4.198:11080/map_baidu_com"
+        "NG_MAP_BAIDU_COM", f"{DMZ_EXTERNAL_DEF}/map_baidu_com"
     )
 
 if API_WEBGL is not None:
@@ -169,8 +178,8 @@ try:
         allow_headers=["*"],
     )
     # 将静态文件目录配置为 static 文件夹
-    app.mount("/static", StaticFiles(directory="static"), name="static")
-    logger.success("[success] running (Press CTRL+C to quit) ")
+    # app.mount("/static", StaticFiles(directory="static"), name="static")
+    logger.success("[success] Uvicorn running on %s (Press CTRL+C to quit)" % EXTERNAL_URL)
 except Exception as e:
     logger.error("[error] running  %s" % e)
     raise e
@@ -406,3 +415,7 @@ async def clear_controllers(ak, sk, response: Response, request: Request):
     else:
         logger.info("[%s][%s][%s]" % (request.url, _uuid, request.client.host))
         return {"message": "认证失败！"}
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=int(EXTERNAL_PORT))

@@ -128,7 +128,8 @@ services:
     container_name: v2lbsyun
     environment:
       - TZ=Asia/Shanghai
-      - EXTERNAL_URL=http://192.168.31.202:8000
+      - RY_MAP_EXTERNAL_HOST=http://192.168.31.202:8000
+      - EXTERNAL_PORT=8000
       - API_WEBGL=https://api.map.baidu.com/api?v=1.0&type=webgl&ak=
     ports:
       - "8000:8000"
@@ -165,3 +166,36 @@ services:
 ~~~~~~
 
 
+### 打包成二进制文件
+
+~~~~~~
+python3 -m nuitka --onefile --standalone --follow-imports main.py
+
+~~~~~~
+
+#### env
+
+- 指定日志路径
+~~~~~~
+RY_MAP_LOG_DIR
+~~~~~~
+- 服务请求地址
+~~~~~~
+RY_MAP_EXTERNAL_HOST
+RY_MAP_EXTERNAL_PORT
+~~~~~~
+- https / http DMZ 区域代理
+~~~~~~
+RY_MAP_DMZ_EXTERNAL_HOST
+RY_MAP_DMZ_EXTERNAL_PORTS
+RY_MAP_DMZ_EXTERNAL_PORT
+~~~~~~
+
+- redis 配置
+
+~~~~~~
+RY_MAP_REDIS_HOST
+RY_MAP_REDIS_PORT
+RY_MAP_REDIS_NAME
+RY_MAP_REDIS_PWD
+~~~~~~

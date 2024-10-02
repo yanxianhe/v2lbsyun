@@ -34,10 +34,10 @@ pymysql.install_as_MySQLdb()
 class MyredisClient(object) :
     def __init__(self) :
         # 如果环境变量不存在，返回默认值'Default Value'
-        redis_host = os.environ.get('REDIS_HOST', 'redis.local')
-        redis_port = os.environ.get('REDIS_PORT', '6379')
-        redis_dbname = os.environ.get('REDIS_NAME', 1)
-        redis_password = os.environ.get('REDIS_PWD', 'redis1')
+        redis_host = os.environ.get('RY_MAP_REDIS_HOST', 'redis.local')
+        redis_port = os.environ.get('RY_MAP_REDIS_PORT', '6379')
+        redis_dbname = os.environ.get('RY_MAP_REDIS_NAME', 1)
+        redis_password = os.environ.get('RY_MAP_REDIS_PWD', 'redis1')
         # 创建Redis连接
         logger.info("{Redis %s -- %s -- %s} " % (redis_host,redis_port,redis_dbname))
         self.db0 = redis.Redis(host=redis_host, port=redis_port, db=redis_dbname, password=redis_password)
@@ -69,12 +69,12 @@ class MyredisClient(object) :
 class MySQLAlchemyClient(object):
     def __init__(self):
         # 如果环境变量不存在，返回默认值'Default Value'
-        dbms = os.environ.get("DBMS", "mysql")
-        db_host = os.environ.get("DB_HOST", "152.136.152.16")
-        db_port = os.environ.get("DB_PORT", "63306")
-        db_username = os.environ.get("DB_USER", "root")
-        db_passwords = os.environ.get("DB_PASS", "root")
-        db_dbname = os.environ.get("DB_NAME", "test")
+        dbms = os.environ.get("RY_MAP_DBMS", "mysql")
+        db_host = os.environ.get("RY_MAP_DBHOST", "152.136.152.16")
+        db_port = os.environ.get("RY_MAP_DBPORT", "63306")
+        db_username = os.environ.get("RY_MAP_DBUSER", "root")
+        db_passwords = os.environ.get("RY_MAP_DBPASS", "root")
+        db_dbname = os.environ.get("RY_MAP_DBNAME", "test")
         sql = ("%s://%s:%s@%s:%s/%s") % (dbms,db_username,db_passwords,db_host,db_port,db_dbname)
         self.engine = create_engine(sql)
 
@@ -85,11 +85,11 @@ class MySQLAlchemyClient(object):
 class MysqlClient (object) :
     def __init__(self) :
         # 如果环境变量不存在，返回默认值'Default Value'
-        mysql_host = os.environ.get('MYSQL_HOST', '152.136.152.16')
-        mysql_port = os.environ.get('MYSQL_PORT', '63306')
-        mysql_username = os.environ.get('MYSQL_USER', 'root')
-        mysql_passwords = os.environ.get('MYSQL_PASS', 'root')
-        mysql_dbname = os.environ.get('MYSQL_NAME', 'default')
+        mysql_host = os.environ.get('RY_MAP_DBHOST', '152.136.152.16')
+        mysql_port = os.environ.get('RY_MAP_DBPORT', '63306')
+        mysql_username = os.environ.get('RY_MAP_DBUSER', 'root')
+        mysql_passwords = os.environ.get('RY_MAP_DBPASS', 'root')
+        mysql_dbname = os.environ.get('RY_MAP_DBNAME', 'default')
         # 标识号
         self.Serialid = UtilsTools().getUuid1()
         
