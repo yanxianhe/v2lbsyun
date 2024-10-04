@@ -5,6 +5,8 @@
 - 本地运行需要安装依赖
 ~~~~~~
  pip install --upgrade pip install -r requirements.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+
+ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ~~~~~~
 
 - 项目目录说明
