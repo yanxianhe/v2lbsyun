@@ -155,6 +155,18 @@ else:
     _webgl_ = Configs._WEBGL_
 
 
+def getLicense():
+    license_path = 'LICENSE'
+    try:
+        with open(license_path, 'r') as file:
+            license_text = file.read()
+            logger.info(license_text)
+    except FileNotFoundError:
+        logger.info("License file not found.")
+    except Exception as e:
+        logger.info(f"An error occurred: {e}")
+    logger.success("\n[success] Uvicorn running on %s (Press CTRL+C to quit)" % EXTERNAL_URL)
+
 #####################################################################################################
 ###*******************************************************************************************#######
 ###*************************             FastAPI init            *****************************#######
@@ -179,7 +191,6 @@ try:
     )
     # 将静态文件目录配置为 static 文件夹
     # app.mount("/static", StaticFiles(directory="static"), name="static")
-    logger.success("[success] Uvicorn running on %s (Press CTRL+C to quit)" % EXTERNAL_URL)
 except Exception as e:
     logger.error("[error] running  %s" % e)
     raise e
@@ -418,4 +429,5 @@ async def clear_controllers(ak, sk, response: Response, request: Request):
 
 
 if __name__ == "__main__":
+    getLicense()
     uvicorn.run(app, host="0.0.0.0", port=int(EXTERNAL_PORT))
