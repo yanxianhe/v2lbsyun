@@ -169,7 +169,7 @@ services:
 ### 打包成二进制文件
 
 ~~~~~~
-python3 -m nuitka --onefile --output-filename=v2lbsyun --onefile-tempdir-spec=/tmp/ry_map_v2lbsyun_{TIME} main.py
+python3 -m nuitka --onefile --output-filename=v2lbsyun --onefile-tempdir-spec=/tmp/v2lbsyun_{TIME} main.py
 ~~~~~~
 
 #### env

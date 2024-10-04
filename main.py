@@ -21,6 +21,7 @@ import uvicorn
 from fastapi import FastAPI, Request, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from modules.db_client import MyredisClient
+from public.license import getLicense
 from public.metadata import Tags
 
 from public.system import Configs
@@ -155,17 +156,7 @@ else:
     _webgl_ = Configs._WEBGL_
 
 
-def getLicense():
-    license_path = 'LICENSE'
-    try:
-        with open(license_path, 'r') as file:
-            license_text = file.read()
-            logger.info(license_text)
-    except FileNotFoundError:
-        logger.info("License file not found.")
-    except Exception as e:
-        logger.info(f"An error occurred: {e}")
-    logger.success("\n[success] Uvicorn running on %s (Press CTRL+C to quit)" % EXTERNAL_URL)
+
 
 #####################################################################################################
 ###*******************************************************************************************#######
@@ -429,5 +420,6 @@ async def clear_controllers(ak, sk, response: Response, request: Request):
 
 
 if __name__ == "__main__":
-    getLicense()
+    logger.info(getLicense())
+    logger.info("\n[success] Uvicorn running on %s (Press CTRL+C to quit)" % EXTERNAL_URL)
     uvicorn.run(app, host="0.0.0.0", port=int(EXTERNAL_PORT))
