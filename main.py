@@ -8,6 +8,7 @@
 @Contact :   xianhe_yan@sina.com
 """
 
+from typing import Union
 from loguru import logger
 import hashlib
 import os
@@ -285,11 +286,12 @@ async def getscriot_new(srt):
     return tmp_srt
 # 处理函数示例
 class EncryptItem(BaseModel):
-    password: str = Field(
+    password: Union[str, None] = Field(
         example="password"
     )
-    encryption: str | None = Field(
+    encryption: Union[str, None] = Field(
         default="AES|DES",
+        example="DES"
     )
 
 @app.post("/v2lbsyun/encrypt", tags=["encryption"])
