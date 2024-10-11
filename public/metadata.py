@@ -39,6 +39,10 @@ class Tags(object) :
             {
                 "name": "clear",
                 "description": "清理换成重新拉取资源 ",
+            },
+            {
+                "name": "encryption",
+                "description": "aes|des加密生成password 对应值 ",
             }
         ]
         return tags_metadata

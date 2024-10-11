@@ -8,3 +8,4 @@ redis==4.6.0
 loguru==0.7.0
 PyMySQL==1.0.2
 SQLAlchemy==2.0.19
+pycryptodome==3.21.0

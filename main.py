@@ -8,11 +8,11 @@
 @Contact :   xianhe_yan@sina.com
 """
 
-from fastapi.staticfiles import StaticFiles
 from loguru import logger
 import hashlib
 import os
 import re
+from pydantic import BaseModel,Field
 import requests
 import urllib3
 import logging
@@ -24,8 +24,8 @@ from modules.db_client import MyredisClient
 from public.license import getLicense
 from public.metadata import Tags
 
-from public.system import Configs
-from public.utils import UtilsTools
+from public import settings
+from public.utils import UtilsTools, pycryptos
 
 
 
@@ -35,125 +35,88 @@ logging.captureWarnings(True)
 
 description = """"""
 
-# ####################################################################################################
-# ##*******************************************************************************************#######
-# ##*************************                 os env              *****************************#######
-# ##*******************************************************************************************#######
-# # ## 提供服务地址
-EXTERNAL_HOST = os.environ.get("RY_MAP_EXTERNAL_HOST", "10.138.4.163")
-EXTERNAL_PORT = os.environ.get("RY_MAP_EXTERNAL_PORT", "9095")
-EXTERNAL_URL_DEF = ("%s:%s") % (EXTERNAL_HOST, EXTERNAL_PORT)
-EXTERNAL_URL = os.environ.get("RY_MAP_EXTERNAL_URL", f"http://{EXTERNAL_URL_DEF}")
-# # ## 提供服务地址
-HTTPS_TYPE = os.environ.get("RY_MAP_HTTPS_TYPE", "https://")
-# # ## http 百度源地址
-API_WEBGL = os.environ.get("RY_MAP_API_WEBGL")
 
-# # ## 百度 ak
-API_WEBGL_AK = os.environ.get("RY_MAP_API_WEBGL_AK", "RY_MAP_API_WEBGL_AK")
 
-# ## 四级域名
-
-# ## 三级域名
-MAPOPEN_CDN_BCEBOS_COM = os.environ.get("RY_MAP_MAPOPEN_CDN_BCEBOS_COM", "mapopen.cdn.bcebos.com")
-API_MAP_BAIDU_COM = os.environ.get("RY_MAP_API_MAP_BAIDU_COM", "api.map.baidu.com")
-# ## 二级级域名
-HM_BAIDU_COM = os.environ.get("RY_MAP_HM_BAIDU_COM", "hm.baidu.com")
-MAPONLINE0_BDIMG_COM = os.environ.get("RY_MAP_MAPONLINE0_BDIMG_COM", "maponline0.bdimg.com")
-MAPONLINE1_BDIMG_COM = os.environ.get("RY_MAP_MAPONLINE1_BDIMG_COM", "maponline1.bdimg.com")
-MAPONLINE2_BDIMG_COM = os.environ.get("RY_MAP_MAPONLINE2_BDIMG_COM", "maponline2.bdimg.com")
-MAPONLINE3_BDIMG_COM = os.environ.get("RY_MAP_MAPONLINE3_BDIMG_COM", "maponline3.bdimg.com")
-WEBMAP0_BDIMG_COM = os.environ.get("RY_MAP_WEBMAP0_BDIMG_COM", "webmap0.bdimg.com")
-PCOR_BAIDU_COM = os.environ.get("RY_MAP_PCOR_BAIDU_COM", "pcor.baidu.com")
-MIAO_BAIDU_COM = os.environ.get("RY_MAP_MIAO_BAIDU_COM", "miao.baidu.com")
-DLSWBR_BAIDU_COM = os.environ.get("RY_MAP_DLSWBR_BAIDU_COM", "dlswbr.baidu.com")
-MAP_BAIDU_COM = os.environ.get("RY_MAP_MAP_BAIDU_COM", "map.baidu.com")
-# # ## http DMZ 区域代理
-DMZ_EXTERNAL_HOST = os.environ.get("RY_MAP_DMZ_EXTERNAL_HOST", "10.138.4.198")
-DMZ_EXTERNAL_PORTS = os.environ.get("RY_MAP_DMZ_EXTERNAL_PORTS", "11443")
-DMZ_EXTERNAL_PORT = os.environ.get("RY_MAP_DMZ_EXTERNAL_PORT", "11080")
-DMZ_EXTERNAL_DEFS = ("%s:%s") % (DMZ_EXTERNAL_HOST, DMZ_EXTERNAL_PORTS)
-DMZ_EXTERNAL_DEF = ("%s:%s") % (DMZ_EXTERNAL_HOST, DMZ_EXTERNAL_PORT)
-if "https" in HTTPS_TYPE:
+if "https" in settings.HTTPS_TYPE:
     # # ## https DMZ 区域代理
     NG_MAPOPEN_CDN_BCEBOS_COM = os.environ.get(
-        "NG_MAPOPEN_CDN_BCEBOS_COM", f"{DMZ_EXTERNAL_DEFS}/mapopen_cdn_bcebos_com"
+        "NG_MAPOPEN_CDN_BCEBOS_COM", f"{settings.DMZ_EXTERNAL_DEFS}/{settings.PREFIX_MAPOPEN_CDN_BCEBOS_COM}"
     )
     NG_HM_BAIDU_COM = os.environ.get(
-        "NG_HM_BAIDU_COM", f"{DMZ_EXTERNAL_DEFS}/hm_baidu_com"
+        "NG_HM_BAIDU_COM", f"{settings.DMZ_EXTERNAL_DEFS}/{settings.PREFIX_HM_BAIDU_COM}"
     )
     NG_API_MAP_BAIDU_COM = os.environ.get(
-        "NG_API_MAP_BAIDU_COM", f"{DMZ_EXTERNAL_DEFS}/api_map_baidu_com"
+        "NG_API_MAP_BAIDU_COM", f"{settings.DMZ_EXTERNAL_DEFS}/{settings.PREFIX_API_MAP_BAIDU_COM}"
     )
     NG_MAPONLINE0_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE0_BDIMG_COM", f"{DMZ_EXTERNAL_DEFS}/maponline0_bdimg_com"
+        "NG_MAPONLINE0_BDIMG_COM", f"{settings.DMZ_EXTERNAL_DEFS}/{settings.PREFIX_MAPONLINE0_BDIMG_COM}"
     )
     NG_MAPONLINE1_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE1_BDIMG_COM", f"{DMZ_EXTERNAL_DEFS}/maponline1_bdimg_com"
+        "NG_MAPONLINE1_BDIMG_COM", f"{settings.DMZ_EXTERNAL_DEFS}/{settings.PREFIX_MAPONLINE1_BDIMG_COM}"
     )
     NG_MAPONLINE2_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE2_BDIMG_COM", f"{DMZ_EXTERNAL_DEFS}/maponline2_bdimg_com"
+        "NG_MAPONLINE2_BDIMG_COM", f"{settings.DMZ_EXTERNAL_DEFS}/{settings.PREFIX_MAPONLINE2_BDIMG_COM}"
     )
     NG_MAPONLINE3_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE3_BDIMG_COM", f"{DMZ_EXTERNAL_DEFS}/maponline3_bdimg_com"
+        "NG_MAPONLINE3_BDIMG_COM", f"{settings.DMZ_EXTERNAL_DEFS}/{settings.PREFIX_MAPONLINE3_BDIMG_COM}"
     )
     NG_WEBMAP0_BDIMG_COM = os.environ.get(
-        "NG_WEBMAP0_BDIMG_COM", f"{DMZ_EXTERNAL_DEFS}/webmap0_bdimg_com"
+        "NG_WEBMAP0_BDIMG_COM", f"{settings.DMZ_EXTERNAL_DEFS}/{settings.PREFIX_WEBMAP0_BDIMG_COM}"
     )
     NG_PCOR_BAIDU_COM = os.environ.get(
-        "NG_PCOR_BAIDU_COM", f"{DMZ_EXTERNAL_DEFS}/pcor_baidu_com"
+        "NG_PCOR_BAIDU_COM", f"{settings.DMZ_EXTERNAL_DEFS}/{settings.PREFIX_PCOR_BAIDU_COM}"
     )
     NG_MIAO_BAIDU_COM = os.environ.get(
-        "NG_MIAO_BAIDU_COM", f"{DMZ_EXTERNAL_DEFS}/miao_baidu_com"
+        "NG_MIAO_BAIDU_COM", f"{settings.DMZ_EXTERNAL_DEFS}/{settings.PREFIX_MIAO_BAIDU_COM}"
     )
     NG_DLSWBR_BAIDU_COM = os.environ.get(
-        "NG_DLSWBR_BAIDU_COM", f"{DMZ_EXTERNAL_DEFS}/dlswbr_baidu_com"
+        "NG_DLSWBR_BAIDU_COM", f"{settings.DMZ_EXTERNAL_DEFS}/{settings.PREFIX_DLSWBR_BAIDU_COM}"
     )
     NG_MAP_BAIDU_COM = os.environ.get(
-        "NG_MAP_BAIDU_COM", f"{DMZ_EXTERNAL_DEFS}/map_baidu_com"
+        "NG_MAP_BAIDU_COM", f"{settings.DMZ_EXTERNAL_DEFS}/{settings.PREFIX_MAP_BAIDU_COM}"
     )
 else:
     NG_MAPOPEN_CDN_BCEBOS_COM = os.environ.get(
-        "NG_MAPOPEN_CDN_BCEBOS_COM", f"{DMZ_EXTERNAL_DEF}/mapopen_cdn_bcebos_com"
+        "NG_MAPOPEN_CDN_BCEBOS_COM", f"{settings.DMZ_EXTERNAL_DEF}/{settings.PREFIX_MAPOPEN_CDN_BCEBOS_COM}"
     )
     NG_HM_BAIDU_COM = os.environ.get(
-        "NG_HM_BAIDU_COM", f"{DMZ_EXTERNAL_DEF}/hm_baidu_com"
+        "NG_HM_BAIDU_COM", f"{settings.DMZ_EXTERNAL_DEF}/{settings.PREFIX_HM_BAIDU_COM}"
     )
     NG_API_MAP_BAIDU_COM = os.environ.get(
-        "NG_API_MAP_BAIDU_COM", f"{DMZ_EXTERNAL_DEF}/api_map_baidu_com"
+        "NG_API_MAP_BAIDU_COM", f"{settings.DMZ_EXTERNAL_DEF}/{settings.PREFIX_API_MAP_BAIDU_COM}"
     )
     NG_MAPONLINE0_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE0_BDIMG_COM", f"{DMZ_EXTERNAL_DEF}/maponline0_bdimg_com"
+        "NG_MAPONLINE0_BDIMG_COM", f"{settings.DMZ_EXTERNAL_DEF}/{settings.PREFIX_MAPONLINE0_BDIMG_COM}"
     )
     NG_MAPONLINE1_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE1_BDIMG_COM", f"{DMZ_EXTERNAL_DEF}/maponline1_bdimg_com"
+        "NG_MAPONLINE1_BDIMG_COM", f"{settings.DMZ_EXTERNAL_DEF}/{settings.PREFIX_MAPONLINE1_BDIMG_COM}"
     )
     NG_MAPONLINE2_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE2_BDIMG_COM", f"{DMZ_EXTERNAL_DEF}/maponline2_bdimg_com"
+        "NG_MAPONLINE2_BDIMG_COM", f"{settings.DMZ_EXTERNAL_DEF}/{settings.PREFIX_MAPONLINE2_BDIMG_COM}"
     )
     NG_MAPONLINE3_BDIMG_COM = os.environ.get(
-        "NG_MAPONLINE3_BDIMG_COM", f"{DMZ_EXTERNAL_DEF}/maponline3_bdimg_com"
+        "NG_MAPONLINE3_BDIMG_COM", f"{settings.DMZ_EXTERNAL_DEF}/{settings.PREFIX_MAPONLINE3_BDIMG_COM}"
     )
     NG_WEBMAP0_BDIMG_COM = os.environ.get(
-        "NG_WEBMAP0_BDIMG_COM", f"{DMZ_EXTERNAL_DEF}/webmap0_bdimg_com"
+        "NG_WEBMAP0_BDIMG_COM", f"{settings.DMZ_EXTERNAL_DEF}/{settings.PREFIX_WEBMAP0_BDIMG_COM}"
     )
     NG_PCOR_BAIDU_COM = os.environ.get(
-        "NG_PCOR_BAIDU_COM", f"{DMZ_EXTERNAL_DEF}/pcor_baidu_com"
+        "NG_PCOR_BAIDU_COM", f"{settings.DMZ_EXTERNAL_DEF}/{settings.PREFIX_PCOR_BAIDU_COM}"
     )
     NG_MIAO_BAIDU_COM = os.environ.get(
-        "NG_MIAO_BAIDU_COM", f"{DMZ_EXTERNAL_DEF}/miao_baidu_com"
+        "NG_MIAO_BAIDU_COM", f"{settings.DMZ_EXTERNAL_DEF}/{settings.PREFIX_MIAO_BAIDU_COM}"
     )
     NG_DLSWBR_BAIDU_COM = os.environ.get(
-        "NG_DLSWBR_BAIDU_COM", f"{DMZ_EXTERNAL_DEF}/dlswbr_baidu_com"
+        "NG_DLSWBR_BAIDU_COM", f"{settings.DMZ_EXTERNAL_DEF}/{settings.PREFIX_DLSWBR_BAIDU_COM}"
     )
     NG_MAP_BAIDU_COM = os.environ.get(
-        "NG_MAP_BAIDU_COM", f"{DMZ_EXTERNAL_DEF}/map_baidu_com"
+        "NG_MAP_BAIDU_COM", f"{settings.DMZ_EXTERNAL_DEF}/{settings.PREFIX_MAP_BAIDU_COM}"
     )
 
-if API_WEBGL is not None:
-    _webgl_ = API_WEBGL
+if settings.API_WEBGL is not None:
+    _webgl_ = settings.API_WEBGL
 else:
-    _webgl_ = Configs._WEBGL_
+    _webgl_ = settings.V2l_WEBGL_
 
 
 
@@ -221,19 +184,19 @@ async def send_http(_uuid, _requrl, _headers, payload={}):
         return "Internal#Server#Error Exception 0 %s" % response.status_code
 # 清理key
 def clear_redis_key(ak):
-    MyredisClient.delete_redis_data(("%s%s") % (Configs._JSAPI_KEY, ak))
-    MyredisClient.delete_redis_data(("%s%s") % (Configs._GETSCRIPT_KEY, ak))
-    MyredisClient.delete_redis_data(("%s%s") % (Configs._GETBMAPCSS_KEY, ak))
-    MyredisClient.delete_redis_data(("%s%s") % (Configs._JSAPI_NEW_KEY, ak))
-    MyredisClient.delete_redis_data(("%s%s") % (Configs._GETSCRIPT_NEW_KEY, ak))
-    MyredisClient.delete_redis_data(("%s%s") % (Configs._GETBMAPCSS_NEW_KEY, ak))
+    MyredisClient.delete_redis_data(("%s%s") % (settings.V2l_JSAPI_KEY, ak))
+    MyredisClient.delete_redis_data(("%s%s") % (settings.V2l_GETSCRIPT_KEY, ak))
+    MyredisClient.delete_redis_data(("%s%s") % (settings.V2l_GETBMAPCSS_KEY, ak))
+    MyredisClient.delete_redis_data(("%s%s") % (settings.V2l_JSAPI_NEW_KEY, ak))
+    MyredisClient.delete_redis_data(("%s%s") % (settings.V2l_GETSCRIPT_NEW_KEY, ak))
+    MyredisClient.delete_redis_data(("%s%s") % (settings.V2l_GETBMAPCSS_NEW_KEY, ak))
 
 async def function_url(ak, srt):
     # # ## 源 js url
     _webgl_js = ""
     # # ## 源 css url
     _webgl_css = ""
-    _key_new = ("%s%s") % (Configs._JSAPI_NEW_KEY, ak)
+    _key_new = ("%s%s") % (settings.V2l_JSAPI_NEW_KEY, ak)
     _functon_webgl_new = ""
     # 正则表达式匹配模式 查找符合模式的URL
     pattern = re.compile(r'https?://[^\s"\']+')
@@ -247,7 +210,7 @@ async def function_url(ak, srt):
                 _webgl_js_tmp = await _rsync_webgl_js
                 _webgl_js = _webgl_js_tmp.replace("https://", "http://")
             _functon_webgl_new = srt.replace(
-                url, "%s/v2lbsyun/getscript/%s" % (EXTERNAL_URL, ak)
+                url, "%s/v2lbsyun/getscript/%s" % (settings.EXTERNAL_URL, ak)
             )
         if ".css" in url.lower():
                 if ".baidu.com" in _webgl_.lower() :
@@ -258,17 +221,17 @@ async def function_url(ak, srt):
                     _webgl_css = _webgl_css_tmp.replace("https://", "http://")
                     
                 _functon_webgl_new = _functon_webgl_new.replace(
-                url, "%s/v2lbsyun/getbmapcss/%s" % (EXTERNAL_URL, ak)
+                url, "%s/v2lbsyun/getbmapcss/%s" % (settings.EXTERNAL_URL, ak)
             )
     # ## 拼接后的 function 放到redis
     MyredisClient.pull_redis_data(_key_new, _functon_webgl_new)
 
     # ## js key
-    _getscript_key = ("%s%s") % (Configs._GETSCRIPT_KEY, ak)
-    _getscript_new_key = ("%s%s") % (Configs._GETSCRIPT_NEW_KEY, ak)
+    _getscript_key = ("%s%s") % (settings.V2l_GETSCRIPT_KEY, ak)
+    _getscript_new_key = ("%s%s") % (settings.V2l_GETSCRIPT_NEW_KEY, ak)
     # ## css key
-    _getbmapcss_key = ("%s%s") % (Configs._GETBMAPCSS_KEY, ak)
-    _getbmapcss_new_key = ("%s%s") % (Configs._GETBMAPCSS_NEW_KEY, ak)
+    _getbmapcss_key = ("%s%s") % (settings.V2l_GETBMAPCSS_KEY, ak)
+    _getbmapcss_new_key = ("%s%s") % (settings.V2l_GETBMAPCSS_NEW_KEY, ak)
 
     _uuid = UtilsTools().getUuid1()
     # ## 获取源js
@@ -277,7 +240,7 @@ async def function_url(ak, srt):
     if "Internal#Server#Error" in _getscript:
         logger.error(("[%s] {%s}" % ("ER99999:请求互联网失败!", _webgl_js)))
     else:
-        logger.info(_getscript)
+        ## logger.debug(_getscript)
         # ## 获取源js 入库
         MyredisClient.pull_redis_data(_getscript_key, _getscript)
         # ## 替换后的 js
@@ -290,7 +253,7 @@ async def function_url(ak, srt):
     if "Internal#Server#Error" in _getscript:
         logger.error(("[%s] {%s}" % ("ER99999:请求互联网失败!", _webgl_css)))
     else:
-        logger.debug(_getbmapcss)
+        # logger.debug(_getbmapcss)
         # ## 获取源css 入库
         MyredisClient.pull_redis_data(_getbmapcss_key, _getbmapcss)
         # ## 替换后的 css
@@ -305,21 +268,39 @@ async def function_url(ak, srt):
 async def getscriot_new(srt):
     # ## 替换域名
     tmp_srt = (
-        srt.replace(MAPOPEN_CDN_BCEBOS_COM, NG_MAPOPEN_CDN_BCEBOS_COM, -1)
-        .replace(HM_BAIDU_COM, NG_HM_BAIDU_COM, -1)
-        .replace(API_MAP_BAIDU_COM, NG_API_MAP_BAIDU_COM, -1)
-        .replace(MAPONLINE0_BDIMG_COM, NG_MAPONLINE0_BDIMG_COM, -1)
-        .replace(MAPONLINE1_BDIMG_COM, NG_MAPONLINE1_BDIMG_COM, -1)
-        .replace(MAPONLINE2_BDIMG_COM, NG_MAPONLINE2_BDIMG_COM, -1)
-        .replace(MAPONLINE3_BDIMG_COM, NG_MAPONLINE3_BDIMG_COM, -1)
-        .replace(WEBMAP0_BDIMG_COM, NG_WEBMAP0_BDIMG_COM, -1)
-        .replace(PCOR_BAIDU_COM, NG_PCOR_BAIDU_COM, -1)
-        .replace(MIAO_BAIDU_COM, NG_MIAO_BAIDU_COM, -1)
-        .replace(DLSWBR_BAIDU_COM, NG_DLSWBR_BAIDU_COM, -1)
-        .replace(MAP_BAIDU_COM, NG_MAP_BAIDU_COM, -1)
+        srt.replace(settings.MAPOPEN_CDN_BCEBOS_COM, NG_MAPOPEN_CDN_BCEBOS_COM, -1)
+        .replace(settings.HM_BAIDU_COM, NG_HM_BAIDU_COM, -1)
+        .replace(settings.API_MAP_BAIDU_COM, NG_API_MAP_BAIDU_COM, -1)
+        .replace(settings.MAPONLINE0_BDIMG_COM, NG_MAPONLINE0_BDIMG_COM, -1)
+        .replace(settings.MAPONLINE1_BDIMG_COM, NG_MAPONLINE1_BDIMG_COM, -1)
+        .replace(settings.MAPONLINE2_BDIMG_COM, NG_MAPONLINE2_BDIMG_COM, -1)
+        .replace(settings.MAPONLINE3_BDIMG_COM, NG_MAPONLINE3_BDIMG_COM, -1)
+        .replace(settings.WEBMAP0_BDIMG_COM, NG_WEBMAP0_BDIMG_COM, -1)
+        .replace(settings.PCOR_BAIDU_COM, NG_PCOR_BAIDU_COM, -1)
+        .replace(settings.MIAO_BAIDU_COM, NG_MIAO_BAIDU_COM, -1)
+        .replace(settings.DLSWBR_BAIDU_COM, NG_DLSWBR_BAIDU_COM, -1)
+        .replace(settings.MAP_BAIDU_COM, NG_MAP_BAIDU_COM, -1)
     )
-    logger.info(tmp_srt)
+    ## logger.debug(tmp_srt)
     return tmp_srt
+# 处理函数示例
+class EncryptItem(BaseModel):
+    password: str = Field(
+        example="password"
+    )
+    encryption: str | None = Field(
+        default="AES|DES",
+    )
+
+@app.post("/v2lbsyun/encrypt", tags=["encryption"])
+async def encrypt_controllers(encryptItem:EncryptItem):
+
+    if encryptItem.encryption == "AES":
+        return {"password|AES": pycryptos.aes_encrypt(encryptItem.password)}
+    elif encryptItem.encryption == "DES":
+        return {"password|DES": pycryptos.des_encrypt(encryptItem.password)}
+    else:
+        return encryptItem.password
 # 处理函数示例
 @app.get("/v1/ping", tags=["ping"])
 async def ping_controllers(request: Request):
@@ -339,8 +320,8 @@ async def jsapi_controllers(ak, response: Response, request: Request):
     _uuid = UtilsTools().getUuid1()
     logger.debug(("[%s] {%s}" % (_uuid, ak)))
     # # ## 查询redis key 是否存在如果存在直接从 redis 中获取
-    _key = ("%s%s") % (Configs._JSAPI_KEY, ak)
-    _key_new = ("%s%s") % (Configs._JSAPI_NEW_KEY, ak)
+    _key = ("%s%s") % (settings.V2l_JSAPI_KEY, ak)
+    _key_new = ("%s%s") % (settings.V2l_JSAPI_NEW_KEY, ak)
     _redis_data = MyredisClient.get_redis_data(_key_new)
 
     if _redis_data is not None and _redis_data != "" and len(_redis_data) > 0:
@@ -348,11 +329,11 @@ async def jsapi_controllers(ak, response: Response, request: Request):
     else:
         # ## 清理key ##
         clear_redis_key(ak)
-        logger.info(("[%s] {%s}" % (_uuid, "clear_redis_key")))
+        logger.debug(("[%s] {%s}" % (_uuid, "clear_redis_key")))
         # ## 通过接口获取方法
         _requrl = ("%s%s") % (_webgl_, ak)
         logger.debug(("[%s] {%s}" % (_uuid, _requrl)))
-        logger.info("[%s][%s][%s]  " % (_uuid, request.client.host, request.url))
+        logger.debug("[%s][%s][%s]  " % (_uuid, request.client.host, request.url))
         # ## 源方法
         _rsync_functon_webgl = send_http(_uuid, _requrl, _headers={})
         _functon_webgl = await _rsync_functon_webgl
@@ -378,12 +359,12 @@ async def jsapi_controllers(ak, response: Response, request: Request):
 @app.get("/v2lbsyun/getscript/{ak}", tags=["getscript"])
 async def getscript_controllers(ak, response: Response, request: Request):
     # 直接返回
-    _key = ("%s%s") % (Configs._GETSCRIPT_NEW_KEY, ak)
+    _key = ("%s%s") % (settings.V2l_GETSCRIPT_NEW_KEY, ak)
     _redis_data = MyredisClient.get_redis_data(_key)
     if _redis_data is not None:
         return Response(content=_redis_data, media_type="text/plain")
     else:
-        _key = ("%s%s") % (Configs._JSAPI_NEW_KEY, ak)
+        _key = ("%s%s") % (settings.V2l_JSAPI_NEW_KEY, ak)
         MyredisClient.delete_redis_data(_key)
         return {"message": ("%s%s") % (_webgl_, ak)}
 
@@ -391,18 +372,18 @@ async def getscript_controllers(ak, response: Response, request: Request):
 @app.get("/v2lbsyun/getbmapcss/{ak}", tags=["getbmapcss"])
 async def getbmapcss_controllers(ak, response: Response, request: Request):
     # 如果有直接返回
-    _key = ("%s%s") % (Configs._GETBMAPCSS_NEW_KEY, ak)
+    _key = ("%s%s") % (settings.V2l_GETBMAPCSS_NEW_KEY, ak)
     _redis_data = MyredisClient.get_redis_data(_key)
     if _redis_data is not None:
         return Response(content=_redis_data, media_type="text/plain")
     else:
-        _key = ("%s%s") % (Configs._JSAPI_NEW_KEY, ak)
+        _key = ("%s%s") % (settings.V2l_JSAPI_NEW_KEY, ak)
         MyredisClient.delete_redis_data(_key)
         return {"message": ("%s%s") % (_webgl_, ak)}
 
 
 # 处理函数示例
-@app.get("/v2lbsyun/clear/{ak}", tags=["clear"])
+@app.post("/v2lbsyun/clear/{ak}", tags=["clear"])
 async def clear_controllers(ak, sk, response: Response, request: Request):
     _uuid = UtilsTools().getUuid1()
     logger.info("[%s][%s][%s]  " % (_uuid, request.client.host, request.url))
@@ -421,5 +402,5 @@ async def clear_controllers(ak, sk, response: Response, request: Request):
 
 if __name__ == "__main__":
     logger.info(getLicense())
-    logger.info("\n[success] Uvicorn running on %s (Press CTRL+C to quit)" % EXTERNAL_URL)
-    uvicorn.run(app, host="0.0.0.0", port=int(EXTERNAL_PORT))
+    logger.info("\n[success] Uvicorn running on %s (Press CTRL+C to quit)" % settings.EXTERNAL_URL)
+    uvicorn.run(app, host="0.0.0.0", port=int(settings.EXTERNAL_PORT))

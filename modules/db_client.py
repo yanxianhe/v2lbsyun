@@ -17,7 +17,7 @@ import redis
 from sqlalchemy import create_engine
 
 from public.sys_logs import GetLogging
-from public.utils import UtilsTools
+from public.utils import UtilsTools, pycryptos
 
 # 引入日志
 GetLogging().get()
@@ -34,12 +34,17 @@ pymysql.install_as_MySQLdb()
 class MyredisClient(object) :
     def __init__(self) :
         # 如果环境变量不存在，返回默认值'Default Value'
+        ry_map_db_encryption = os.environ.get('RY_MAP_DB_ENCRYPTION', 'False')
         redis_host = os.environ.get('RY_MAP_REDIS_HOST', 'redis.local')
         redis_port = os.environ.get('RY_MAP_REDIS_PORT', '6379')
         redis_dbname = os.environ.get('RY_MAP_REDIS_NAME', 1)
         redis_password = os.environ.get('RY_MAP_REDIS_PWD', 'redis1')
+        if ry_map_db_encryption == 'AES':
+            redis_password = pycryptos.aes_decrypt(redis_password)
+        elif ry_map_db_encryption == 'DES':
+            redis_password = pycryptos.des_decrypt(redis_password)
         # 创建Redis连接
-        logger.info("{Redis %s -- %s -- %s} " % (redis_host,redis_port,redis_dbname))
+        ## logger.debug("{Redis %s -- %s -- %s} " % (redis_host,redis_port,redis_dbname))
         self.db0 = redis.Redis(host=redis_host, port=redis_port, db=redis_dbname, password=redis_password)
 #########################################Python的数据操作 Redis#########################################
     def get_redis_data(ak):
