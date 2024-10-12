@@ -12,7 +12,7 @@
 import os,uuid,base64,hashlib,hmac,random,string
 from Crypto.Cipher import AES,DES
 class Configs :
-    SECRET_KEY = "948440a0cf7c6dfd2ceeb56f9e7571201f2c6834d301ebb9c441ca267765331b"
+    SECRET_KEY = ""
 
 srt_key = os.environ.get("RY_MAP_SECRET_KEY", Configs.SECRET_KEY)
 

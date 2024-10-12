@@ -11,7 +11,7 @@ export RY_MAP_LOG_DIR=${RY_MAP_WORK}/logs
 ## 是否开启AES/DES加密，Default: False
 export RY_MAP_DB_ENCRYPTION="DES"
 ## - 盐值  AES/DES 算法使用，默认为
-export RY_MAP_SECRET_KEY="948440a0cf7c6dfd2ceeb56f9e7571201f2c6834d301ebb9c441ca267765331b"
+export RY_MAP_SECRET_KEY=""
 
 ## - redis 配置
 export RY_MAP_REDIS_HOST=192.168.1.202

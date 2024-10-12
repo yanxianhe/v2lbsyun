@@ -41,9 +41,13 @@ PREFIX_DLSWBR_BAIDU_COM="dlswbr_baidu_com"
 PREFIX_MAP_BAIDU_COM="map_baidu_com"
 
 ## - 本机器IP地址、【访问请求地址】
-EXTERNAL_HOST = os.environ.get("RY_MAP_EXTERNAL_HOST", "10.138.3.36")
+EXTERNAL_HOST = os.environ.get("RY_MAP_EXTERNAL_HOST", "10.138.3.71")
 EXTERNAL_PORT = os.environ.get("RY_MAP_EXTERNAL_PORT", "80")
-EXTERNAL_URL_DEF = ("%s:%s") % (EXTERNAL_HOST, EXTERNAL_PORT)
+if EXTERNAL_PORT == "80" or EXTERNAL_PORT == "443":
+    EXTERNAL_URL_DEF = ("%s") % (EXTERNAL_HOST)
+else:
+    EXTERNAL_URL_DEF = ("%s:%s") % (EXTERNAL_HOST, EXTERNAL_PORT)
+
 EXTERNAL_URL = os.environ.get("RY_MAP_EXTERNAL_URL", f"http://{EXTERNAL_URL_DEF}")
 # # ## http DMZ 区域代理
 DMZ_EXTERNAL_HOST = os.environ.get("RY_MAP_DMZ_EXTERNAL_HOST", "10.138.3.36")
