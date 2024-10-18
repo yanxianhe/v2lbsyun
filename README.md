@@ -60,8 +60,7 @@ https://api.map.baidu.com/api?v=1.0&type=webgl&ak=你的密钥
 ```
 
 - 把百度地图资源加载到本地redis中 保存 24小时
-- 通过替换外部域名可以通过环境变量修也可以修改 代码中的默认值
-- 清空redis 可以自行添加验证。当前是两次 md5 加 ak 认证
 - 当前使用 12 个替换域名如果不够自行添加
-
+- 通过替换外部域名 utils/utils.go DomainsMap
+- 清空redis 可以自行添加验证。当前是两次 md5 加 ak 认证
 - 具体看config.toml   配置文件
