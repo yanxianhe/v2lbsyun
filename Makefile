@@ -1,13 +1,33 @@
-.PHONY: install build clean
+# 定义编译时的变量
+APP_NAME = v2lbsyun
+BIN_DIR = bin
+BUILD_TIME = $(shell date +%Y%m%d-%H%M%S)
+#GIT_HASH = $(shell git rev-parse --short HEAD)
+GIT_HASH = 1.2.0
+LDFLAGS = -ldflags "-s -w -X main.version=$(GIT_HASH) -X main.buildTime=$(BUILD_TIME)"
 
-install:
-	pip install nuitka -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-	pip install -r requirements.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+# 默认目标
+default: build
 
-build: install
-	python3 -m nuitka --onefile --output-filename=v2lbsyun --onefile-tempdir-spec=/tmp/v2lbsyun_{TIME} main.py
+# 编译应用
+build:
+	@echo "Building $(APP_NAME)..."
+	@go build $(LDFLAGS) -o $(BIN_DIR)/$(APP_NAME) main.go
+	@rsync -avz config.toml $(BIN_DIR)/
 
+# 运行应用
+run:
+	@echo "Running $(APP_NAME)..."
+	@go run main.go
+
+# 清理构建的二进制文件
 clean:
-	rm -rf nuitka-crash-report.xml
-	rm -f v2lbsyun
-	rm -rf /tmp/v2lbsyun_*
+	@echo "Cleaning up..."
+	@rm -rf $(BIN_DIR)/$(APP_NAME)
+
+# 显示版本信息
+version:
+	@echo "App Version: $(GIT_HASH)"
+	@echo "Build Time: $(BUILD_TIME)"
+
+.PHONY: build run clean version

@@ -1,0 +1,25 @@
+
+## 是否开启DES加密，Default: False
+# - 盐值 默认为
+[secret]
+RY_MAP_SECRET_KEY="948440a0cf7c6dfd2ceeb56f9e7571201f2c6834d301ebb9c441ca267765331b"
+# redis 配置 使用 1 库
+[redis]
+RY_MAP_REDIS_HOST="192.168.1.202:6379"
+RY_MAP_REDIS_NAME=5
+RY_MAP_REDIS_PWD="1a0be5459e90dca507e4d1093109d081"
+RY_MAP_REDIS_DURATION=86400
+# 当前设备地址,请求服务地址、端口
+[host]
+RY_MAP_EXTERNAL_HOST="192.168.0.202"
+RY_MAP_EXTERNAL_PORT=9095
+
+# DMZ    内网地址、端口
+[dmz]
+RY_MAP_DMZ_EXTERNAL_HOST="10.138.3.36"
+RY_MAP_DMZ_EXTERNAL_PORTS_PREFIX="/11443"
+RY_MAP_DMZ_EXTERNAL_PORT_PREFIX="/11080"
+[baidu]
+RY_MAP_BAIDU_API_URL="https://api.map.baidu.com/api?v=1.0&type=webgl&ak="
+
+

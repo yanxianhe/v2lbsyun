@@ -1,5 +1,6 @@
 **/shell/*
 **/.vscode/*
+**/bin/*
 **/__pycache__/
 **.log
 main.build/*
