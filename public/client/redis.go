@@ -26,7 +26,6 @@ func InitRedis() *redis.Client {
 		Password: utils.GetDesDecrypt(config.Cfg.Redis.RY_MAP_REDIS_PWD), // no password set
 		DB:       config.Cfg.Redis.RY_MAP_REDIS_NAME,                     // use default DB
 	})
-	fmt.Printf("redis client init success %v\n", rdb.String())
 	return rdb
 }
 

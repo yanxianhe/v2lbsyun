@@ -27,6 +27,7 @@ type Configs struct {
 	}
 	Baidu struct {
 		RY_MAP_BAIDU_API_URL string
+		RY_MAP_BAIDU_TIMEOUT int64
 	}
 }
 
