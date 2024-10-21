@@ -1,25 +1,23 @@
 # 定义编译时的变量
-APP_NAME = v2lbsyun
-BIN_DIR = bin
-BUILD_TIME = $(shell date +%Y%m%d-%H%M%S)
-#GIT_HASH = $(shell git rev-parse --short HEAD)
-GIT_HASH = 1.2.0
-LDFLAGS = -ldflags "-s -w -X main.version=$(GIT_HASH) -X main.buildTime=$(BUILD_TIME)"
+GOROOT ?= /opt/go
+GOPATH ?= /opt/go/.mygolang
+GOBIN ?= $(GOPATH)/bin
+GOPROXY ?= https://mirrors.aliyun.com/goproxy/
+PATH ?= $(GOROOT)/bin:$(GOBIN):$(PATH)
+APP_NAME ?= v2lbsyun
+BIN_DIR ?= bin
+BUILD_TIME ?= $(shell date +%Y%m%d-%H%M%S)
+GIT_HASH ?= $(shell git rev-parse --short HEAD)
+GIT_HASH ?= 1.2.0
+LDFLAGS ?= -ldflags "-s -w -X main.version=$(GIT_HASH) -X main.buildTime=$(BUILD_TIME)"
 
 # 默认目标
 default: build
-initenv:
-	@export GO111MODULE=on
-	@export GOROOT=/opt/go
-	@export GOPATH=/opt/go/.mygolang
-	@export GOPROXY=https://mirrors.aliyun.com/goproxy/
-	@export GOPROXY=https://goproxy.io,direct
-	@export PATH=$PATH:$GOROOT/bin
-	@export CONTAINERS_USERNS_MODE=auto
+
 # 编译应用
 build:
 	@echo "Building $(APP_NAME)..."
-	@go build $(LDFLAGS) -o $(BIN_DIR)/$(APP_NAME) main.go
+	@$(GOBIN)/go build $(LDFLAGS) -o $(BIN_DIR)/$(APP_NAME) main.go
 	@rsync -avz config.toml $(BIN_DIR)/
 	@rsync -avz LICENSE $(BIN_DIR)/
 
