@@ -95,8 +95,8 @@ func v2lCheck(ak string) string {
 func v2l_M_Webgl(ak string) string {
 	redisClient := client.InitRedis()
 	baidu_url := "" // 定义请求百度地图接口的url
-	// baidu_url = utils.GetUirBaiduWebgl(ak)
-	baidu_url = fmt.Sprintf("%s%s", config.Cfg.Baidu.RY_MAP_BAIDU_API_URL, ak)
+	baidu_url = utils.GetUirBaiduWebgl(ak)
+	// baidu_url = fmt.Sprintf("%s%s", config.Cfg.Baidu.RY_MAP_BAIDU_API_URL, ak)
 	body, err := client.SendHTTPSGetRequest(baidu_url)
 	if err != nil {
 		fmt.Printf("请求百度地图接口失败，错误信息：%s \n", baidu_url)
