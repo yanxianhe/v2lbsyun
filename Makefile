@@ -17,7 +17,7 @@ default: build
 # 编译应用
 build:
 	@echo "Building $(APP_NAME)..."
-	@$(GOBIN)/go build $(LDFLAGS) -o $(BIN_DIR)/$(APP_NAME) main.go
+	@$(GOROOT)/bin/go build $(LDFLAGS) -o $(BIN_DIR)/$(APP_NAME) main.go
 	@rsync -avz config.toml $(BIN_DIR)/
 	@rsync -avz LICENSE $(BIN_DIR)/
 
