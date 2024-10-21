@@ -39,6 +39,5 @@ func InitConfig() error {
 		fmt.Printf("Error decoding TOML file: %v\n", err)
 		return err
 	}
-	fmt.Printf("Configs: %+v\n", Cfg)
 	return nil
 }
