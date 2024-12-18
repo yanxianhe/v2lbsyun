@@ -9,15 +9,20 @@ import (
 func PingGetRedisKeyCount() v2lstructs.ResponseData {
 	redisClient := client.InitRedis()
 	keyCount := client.KeyCount(redisClient, "*")
-	someData := map[string]string{"data": fmt.Sprintf("%d", keyCount)}
-	responseData := v2lstructs.ResponseData{}
-	responseData.Status = 200
+	var message string
+	var data interface{}
+
 	if keyCount == -1 {
-		responseData.Message = "Redis连接失败"
-		responseData.Data = nil
+		message = "Redis连接失败"
+		data = nil
 	} else {
-		responseData.Message = "Redis连接成功"
-		responseData.Data = someData
+		message = "Redis连接成功"
+		data = map[string]string{"keyCount": fmt.Sprintf("%d", keyCount)}
+
 	}
-	return responseData
+	return v2lstructs.ResponseData{
+		Message: message,
+		Data:    data,
+		Status:  200,
+	}
 }

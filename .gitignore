@@ -3,6 +3,7 @@
 **/bin/*
 **/__pycache__/
 **.log
+__debug_**
 main.build/*
 main.dist/*
 main.onefile-build/*

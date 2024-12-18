@@ -11,7 +11,7 @@ import (
 * 连接Redis，并获取Redis中key的数量
  */
 func Ping(ctx iris.Context) {
-	ctx.JSON(v2lmethod.PingGetRedisKeyCount)
+	ctx.JSON(v2lmethod.PingGetRedisKeyCount())
 }
 
 // 调用百度V1 API 入口

@@ -99,7 +99,7 @@ func v2l_M_Webgl(ak string) string {
 	// baidu_url = fmt.Sprintf("%s%s", config.Cfg.Baidu.RY_MAP_BAIDU_API_URL, ak)
 	body, err := client.SendHTTPSGetRequest(baidu_url)
 	if err != nil {
-		fmt.Printf("请求接口失败，错误信息：\n %s",err.Error())
+		fmt.Printf("请求接口失败，错误信息：\n %s", err.Error())
 	}
 	// 将结果存入 Redis
 	client.SetValue(redisClient, utils.RedisKeyBaiduWebgl(ak), string(body), config.Cfg.Redis.RY_MAP_REDIS_DURATION)
