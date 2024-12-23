@@ -15,7 +15,7 @@ func main() {
 		fmt.Println("Failed to init config:", err)
 		return
 	}
-
+	app.OnErrorCode(iris.StatusNotFound, v2lcontext.NotFoundHandler)
 	v1 := app.Party("/check")
 	{
 		v1.Get("/ping", v2lcontext.Ping)
